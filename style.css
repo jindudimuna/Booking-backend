@@ -101,7 +101,7 @@
 
 .login-form {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(1, 1fr);
   grid-gap: 5px 5px 2px 5px;
   margin-left: 15%;
@@ -109,5 +109,4 @@
 }
 .red-text {
   color: red;
-  background-color: black;
 }

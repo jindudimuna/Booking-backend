@@ -3,9 +3,10 @@ include './header.php';
 ?>
 
 <?php 
+include '../php2/includes/dbh.inc.php';
 
-$Fname = $Lname = $email = $mobile = $pwd = '';
-$errors = array('first-name' =>'' , 'last-name' => '', 'email' =>'' ,'phone' => '', 'Password' => '');
+$Fname = $Lname = $email = $mobile =$Userid = $pwd = '';
+$errors = array('first-name' =>'', 'last-name' => '', 'email' =>'','userID'=>'', 'phone' => '', 'Password' => '');
 
 
 if (isset($_POST['submit'])) {
@@ -17,15 +18,15 @@ if (isset($_POST['submit'])) {
 //     $pwd  = $_POST['Password'];
 //     $pwdconfirm = $_POST['confirm-password'];
 
-     include '../php2/includes/dbh.inc.php';
 // check firstname
           if (empty($_POST['first-name'])) {
 
           $errors['first-name'] = 'please enter your firstname<br>';
-          echo $errors['first-name'];
+          // echo $errors['first-name'];
 
           } else {
                $Fname = $_POST['first-name'];
+
           }
 
   
@@ -50,6 +51,22 @@ if (isset($_POST['submit'])) {
                $email = $_POST['email'];
      }
   
+     }
+
+     if (empty($POST_['userID'])) {
+          $errors['userID'] = 'please enter a username <br>';
+     } else{
+          $Userid = $_POST['userID'];
+
+          $sql = "SELECT username FROM users WHERE username='{$Userid}'";
+          $result = mysqli_query($con,$sql) or die("invalid query") ;
+      if (mysqli_num_rows($result) > 0) {
+          $errors['userID'] = 'Username already exists<br>';
+
+      } else {
+          $Userid = $_POST['userID'];
+
+      }
      }
     
   
@@ -85,6 +102,7 @@ if (isset($_POST['submit'])) {
         $Fname = mysqli_real_escape_string($conn, $_POST['first-name']);
         $Lname = mysqli_real_escape_string($conn, $_POST['last-name']);
         $email = mysqli_real_escape_string($conn, $_POST['email']);
+        $Userid = mysqli_real_escape_string($conn, $_POST['userID']);
         $mobile = mysqli_real_escape_string($conn, $_POST['phone']);
         $pwd = mysqli_real_escape_string($conn, $_POST['Password']);
      
@@ -92,7 +110,7 @@ if (isset($_POST['submit'])) {
         // createUser
 
 
-          $sql = "INSERT INTO users(usersFirstName, usersLastName, usersEmail, usersPhone, usersPassword) VALUES(?, ?, ?, ?, ?);";
+          $sql = "INSERT INTO users(usersFirstName, usersLastName, usersEmail, userName, usersPhone, usersPassword) VALUES(?, ?, ?, ?, ?, ?);";
           $stmt = mysqli_stmt_init($conn);
           if (mysqli_stmt_prepare($stmt, $sql)) {
               # code...
@@ -101,23 +119,20 @@ if (isset($_POST['submit'])) {
               header('location: ../PHP2/signup.php?error=stmtfailed'); 
               exit();
           }
-      
+     //  hashpassword
           $hashpassword = password_hash($Password, PASSWORD_DEFAULT);
-      
-          mysqli_stmt_bind_param($stmt, "sssds", $Fname, $Lname, $email, $mobile, $hashpassword);
+     //  bind parameters
+          mysqli_stmt_bind_param($stmt, "ssssds", $Fname, $Lname, $email, $Userid, $mobile, $hashpassword);
           
       
            mysqli_stmt_execute($stmt);
            mysqli_stmt_close($stmt);
-           header('location: ../PHP2/signup.php?error=none'); 
-           exit();
+          //  header('location: ../PHP2/signup.php?error=none'); 
+          //  exit();
       
 
-    }
-
-else{
-    header('location: ./signup.php'); 
-    exit();
+    } else{
+//     header('location: ./signup.php'); 
 }
 }
 
@@ -137,7 +152,7 @@ else{
 
 <!-- <div class="form-list"> -->
 
-<form class="signup-form" action="signup.php" method="POST">
+<form class="signup-form" action="<?php $_SERVER['PHP_SELF']; ?>" method="POST">
 
     <div class="form-style">
 
@@ -145,9 +160,9 @@ else{
         <p class="title"> Firstname</p>
         <input type="text" name="first-name" class="field" value="<?php echo htmlspecialchars($Fname); ?>"  >
    </div>
-
-  <div>
-  <p class="red-text"><?php echo $errors['first-name']; ?></p>
+   
+   <div>
+        <p class="red-text"><?php echo $errors['first-name']; ?></p>
   </div>
 
    <div>
@@ -163,8 +178,18 @@ else{
     <input type="email" name="email" class="field" placeholder="example@email.com" value="<?php echo htmlspecialchars($email); ?>" >
 </div>
 
+
 <div >
 <p class="red-text"><?php echo $errors['email']; ?></p>
+  </div>
+
+  <div>
+    <p class="title"> Username</p>
+    <input type="text" name="userID" class="field" placeholder="username" value="<?php echo htmlspecialchars($Userid); ?>">
+</div>
+
+<div >
+     <p class="red-text"><?php echo $errors['userID']; ?></p>
   </div>
 
 <div>
