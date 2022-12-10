@@ -5,7 +5,7 @@ include './header.php';
 <?php 
 include '../php2/includes/dbh.inc.php';
 
-$Fname = $Lname = $email = $mobile =$Userid = $pwd = '';
+$Fname = $Lname = $email = $mobile = $Userid = $pwd = '';
 $errors = array('first-name' =>'', 'last-name' => '', 'email' =>'','userID'=>'', 'phone' => '', 'Password' => '');
 
 
@@ -53,18 +53,20 @@ if (isset($_POST['submit'])) {
   
      }
 
-     if (empty($POST_['userID'])) {
+     if (empty($_POST['username'])) {
           $errors['userID'] = 'please enter a username <br>';
      } else{
-          $Userid = $_POST['userID'];
-
-          $sql = "SELECT username FROM users WHERE username='{$Userid}'";
-          $result = mysqli_query($con,$sql) or die("invalid query") ;
+          $Userid = $_POST['username'];
+          // $sql = "SELECT userName FROM users WHERE userName=$Userid;";
+          // $sql = "SELECT * FROM `users` WHERE `userName` = `$Userid`";
+      
+          $sql = " SELECT userName FROM `users` WHERE userName = '$Userid' ";
+          $result = mysqli_query($conn,$sql) or die("invalid query") ;
       if (mysqli_num_rows($result) > 0) {
           $errors['userID'] = 'Username already exists<br>';
 
       } else {
-          $Userid = $_POST['userID'];
+          $Userid = $_POST['username'];
 
       }
      }
@@ -102,7 +104,7 @@ if (isset($_POST['submit'])) {
         $Fname = mysqli_real_escape_string($conn, $_POST['first-name']);
         $Lname = mysqli_real_escape_string($conn, $_POST['last-name']);
         $email = mysqli_real_escape_string($conn, $_POST['email']);
-        $Userid = mysqli_real_escape_string($conn, $_POST['userID']);
+        $Userid = mysqli_real_escape_string($conn, $_POST['username']);
         $mobile = mysqli_real_escape_string($conn, $_POST['phone']);
         $pwd = mysqli_real_escape_string($conn, $_POST['Password']);
      
@@ -120,7 +122,7 @@ if (isset($_POST['submit'])) {
               exit();
           }
      //  hashpassword
-          $hashpassword = password_hash($Password, PASSWORD_DEFAULT);
+          $hashpassword = password_hash($pwd, PASSWORD_DEFAULT);
      //  bind parameters
           mysqli_stmt_bind_param($stmt, "ssssds", $Fname, $Lname, $email, $Userid, $mobile, $hashpassword);
           
@@ -185,7 +187,7 @@ if (isset($_POST['submit'])) {
 
   <div>
     <p class="title"> Username</p>
-    <input type="text" name="userID" class="field" placeholder="username" value="<?php echo htmlspecialchars($Userid); ?>">
+    <input type="text" name="username" class="field" placeholder="username" value="<?php echo htmlspecialchars($Userid); ?>">
 </div>
 
 <div >
